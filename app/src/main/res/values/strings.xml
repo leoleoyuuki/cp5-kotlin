@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">cp5-kotlin</string>
+    <string name="title_home">Cadastrar Tarefa</string>
+    <string name="title_dashboard">Listar Tarefas</string>
+</resources>
