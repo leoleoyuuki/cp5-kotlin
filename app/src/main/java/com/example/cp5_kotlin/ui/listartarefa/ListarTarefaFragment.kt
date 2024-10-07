@@ -1,26 +1,26 @@
 package com.example.cp5_kotlin.ui.listartarefa
 
+import android.app.AlertDialog
+import android.content.ContentValues
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.Button
+import android.widget.EditText
 import android.widget.ListView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.cp5_kotlin.R
 import com.example.cp5_kotlin.bancodedados.DatabaseHelper
 import com.example.cp5_kotlin.model.Tarefa
+import com.google.android.material.button.MaterialButton
 
 class ListarTarefaFragment : Fragment() {
 
     private lateinit var listViewTarefas: ListView
-    private lateinit var btnAtualizar: Button
-    private lateinit var bancoDados: DatabaseHelper
-    private var listaTarefas = mutableListOf<Tarefa>()
+    private lateinit var dbHelper: DatabaseHelper
+    private val listaTarefas: MutableList<Tarefa> = mutableListOf()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -28,65 +28,133 @@ class ListarTarefaFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_listar_tarefa, container, false)
 
+        // Inicializando o ListView e o DatabaseHelper
         listViewTarefas = view.findViewById(R.id.listViewTarefas)
-        btnAtualizar = view.findViewById(R.id.btnAtualizar)
+        dbHelper = DatabaseHelper(requireContext())
 
-        bancoDados = DatabaseHelper(requireContext())
+        // Chamando o método para listar tarefas
         listarTarefas()
-
-        btnAtualizar.setOnClickListener {
-            listarTarefas()
-        }
 
         return view
     }
 
     private fun listarTarefas() {
         listaTarefas.clear()
-        val cursor = bancoDados.readableDatabase.query(
+
+        val db = dbHelper.readableDatabase
+        val cursor = db.query(
             DatabaseHelper.TABELA_TAREFAS,
-            null,
-            null,
+            null, // seleciona todas as colunas
+            null, // sem cláusula WHERE
             null,
             null,
             null,
             null
         )
 
-        while (cursor.moveToNext()) {
-            val id = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.ID_TAREFA))
-            val titulo = cursor.getString(cursor.getColumnIndex(DatabaseHelper.TITULO))
-            val data = cursor.getString(cursor.getColumnIndex(DatabaseHelper.DATA_TAREFA))
-            val descricao = cursor.getString(cursor.getColumnIndex(DatabaseHelper.DESCRICAO))
-            val local = cursor.getString(cursor.getColumnIndex(DatabaseHelper.LOCAL_TAREFA))
-            val hora = cursor.getString(cursor.getColumnIndex(DatabaseHelper.HORA_TAREFA))
+        Log.d("ListarTarefas", "Cursor size: ${cursor.count}")
 
-            listaTarefas.add(Tarefa(id, titulo, data, descricao, local, hora))
+        if (cursor.moveToFirst()) {
+            do {
+                try {
+                    // Verificando se as colunas estão corretas
+                    val id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.ID_TAREFA))
+                    val titulo = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.TITULO))
+                    val data = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.DATA_TAREFA))
+                    val descricao = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.DESCRICAO))
+                    val local = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.LOCAL_TAREFA))
+                    val hora = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.HORA_TAREFA))
+
+                    // Log para cada tarefa encontrada
+                    Log.d("ListarTarefas", "Tarefa encontrada: ID: $id, Título: $titulo")
+
+                    // Adicionando a tarefa na lista
+                    listaTarefas.add(Tarefa(id, titulo, data, descricao, local, hora))
+
+                } catch (e: Exception) {
+                    Log.e("ListarTarefas", "Erro ao obter tarefa: ${e.message}")
+                }
+            } while (cursor.moveToNext())
+        } else {
+            Log.d("ListarTarefas", "Nenhuma tarefa encontrada")
         }
 
         cursor.close()
+        db.close()
 
-        val adapter = ArrayAdapter(requireContext(), R.layout.item_tarefa, listaTarefas)
+        // Verificando se a lista está populada corretamente
+        Log.d("ListarTarefas", "Total de tarefas listadas: ${listaTarefas.size}")
+
+        // Exibir tarefas no ListView
+        val adapter = TarefaAdapter(requireContext(), listaTarefas, ::onEditarClick, ::onDeletarClick)
         listViewTarefas.adapter = adapter
+    }
 
-        listViewTarefas.setOnItemClickListener { _, view, position, _ ->
-            // Exibe os botões de editar e deletar
-            val tarefa = listaTarefas[position]
-            view.findViewById<Button>(R.id.btnEditar).setOnClickListener {
-                // Implementar a lógica de edição aqui
-                Toast.makeText(requireContext(), "Editar: ${tarefa.titulo}", Toast.LENGTH_SHORT).show()
-            }
+    // Função de callback para editar a tarefa
+    private fun onEditarClick(tarefa: Tarefa) {
+        Log.d("ListarTarefas", "Editar tarefa ID: ${tarefa.id}")
+        // Implemente a lógica para editar a tarefa
+    }
 
-            view.findViewById<Button>(R.id.btnDeletar).setOnClickListener {
-                // Implementar a lógica de deleção aqui
-                deletarTarefa(tarefa.id)
-            }
+    // Função de callback para deletar a tarefa
+    private fun onDeletarClick(tarefa: Tarefa) {
+        Log.d("ListarTarefas", "Deletar tarefa ID: ${tarefa.id}")
+        val db = dbHelper.writableDatabase
+        val whereClause = "${DatabaseHelper.ID_TAREFA} = ?"
+        val whereArgs = arrayOf(tarefa.id.toString())
+
+        val deletedRows = db.delete(DatabaseHelper.TABELA_TAREFAS, whereClause, whereArgs)
+        db.close()
+
+        if (deletedRows > 0) {
+            Log.d("ListarTarefas", "Tarefa deletada com sucesso")
+            listarTarefas() // Atualiza a lista após a exclusão
+        } else {
+            Log.e("ListarTarefas", "Erro ao deletar tarefa")
         }
     }
 
-    private fun deletarTarefa(id: Int) {
-        bancoDados.writableDatabase.delete(DatabaseHelper.TABELA_TAREFAS, "${DatabaseHelper.ID_TAREFA} = ?", arrayOf(id.toString()))
-        Toast.makeText(requireContext(), "Tarefa deletada", Toast.LENGTH_SHORT).show()
-        listarTarefas() // Atualiza a lista
+    private fun showEditTaskDialog(tarefa: Tarefa) {
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setTitle("Editar Tarefa")
+
+        // Configurando o EditText
+        val input = EditText(requireContext())
+        input.setText(tarefa.titulo) // Define o texto atual da tarefa
+        builder.setView(input)
+
+        builder.setPositiveButton("Salvar") { dialog, _ ->
+            val novoTitulo = input.text.toString()
+
+            if (novoTitulo.isNotEmpty()) {
+                tarefa.titulo = novoTitulo // Atualiza o título da tarefa
+                atualizarTarefaNoBanco(tarefa) // Chama a função de atualização no banco
+                listarTarefas() // Atualiza a lista após a edição
+            }
+
+            dialog.dismiss()
+        }
+
+        builder.setNegativeButton("Cancelar") { dialog, _ ->
+            dialog.cancel()
+        }
+
+        builder.show()
     }
+
+
+    private fun atualizarTarefaNoBanco(tarefa: Tarefa) {
+        val db = DatabaseHelper(requireContext()).writableDatabase
+        val contentValues = ContentValues().apply {
+            put(DatabaseHelper.TITULO, tarefa.titulo)
+            put(DatabaseHelper.DATA_TAREFA, tarefa.data)
+            put(DatabaseHelper.DESCRICAO, tarefa.descricao)
+            put(DatabaseHelper.LOCAL_TAREFA, tarefa.local)
+            put(DatabaseHelper.HORA_TAREFA, tarefa.hora)
+        }
+
+        db.update(DatabaseHelper.TABELA_TAREFAS, contentValues, "${DatabaseHelper.ID_TAREFA} = ?", arrayOf(tarefa.id.toString()))
+        db.close()
+    }
+
 }
