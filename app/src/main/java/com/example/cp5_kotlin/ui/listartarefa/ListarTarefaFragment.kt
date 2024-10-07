@@ -7,9 +7,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.ListView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.cp5_kotlin.R
 import com.example.cp5_kotlin.bancodedados.DatabaseHelper
@@ -93,7 +93,37 @@ class ListarTarefaFragment : Fragment() {
     // Função de callback para editar a tarefa
     private fun onEditarClick(tarefa: Tarefa) {
         Log.d("ListarTarefas", "Editar tarefa ID: ${tarefa.id}")
-        // Implemente a lógica para editar a tarefa
+
+        // Criar o diálogo para editar a tarefa
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setTitle(R.string.editar_tarefa) // Usando string internacionalizada
+
+        // Criar um EditText para permitir a edição
+        val input = EditText(requireContext())
+        input.setText(tarefa.titulo) // Preenche o EditText com o título atual
+        builder.setView(input)
+
+        // Botão de salvar a edição
+        builder.setPositiveButton(R.string.salvar) { dialog, which -> // Usando string internacionalizada
+            val novoTitulo = input.text.toString()
+
+            if (novoTitulo.isNotEmpty()) {
+                // Atualizar o título da tarefa
+                tarefa.titulo = novoTitulo
+                atualizarTarefaNoBanco(tarefa) // Atualiza a tarefa no banco
+                listarTarefas() // Atualiza a lista de tarefas na tela
+            } else {
+                Toast.makeText(requireContext(), R.string.titulo_vazio, Toast.LENGTH_SHORT).show() // Usando string internacionalizada
+            }
+        }
+
+        // Botão de cancelar a edição
+        builder.setNegativeButton(R.string.cancelar) { dialog, which -> // Usando string internacionalizada
+            dialog.cancel()
+        }
+
+        // Mostrar o diálogo
+        builder.show()
     }
 
     // Função de callback para deletar a tarefa
@@ -114,35 +144,6 @@ class ListarTarefaFragment : Fragment() {
         }
     }
 
-    private fun showEditTaskDialog(tarefa: Tarefa) {
-        val builder = AlertDialog.Builder(requireContext())
-        builder.setTitle("Editar Tarefa")
-
-        // Configurando o EditText
-        val input = EditText(requireContext())
-        input.setText(tarefa.titulo) // Define o texto atual da tarefa
-        builder.setView(input)
-
-        builder.setPositiveButton("Salvar") { dialog, _ ->
-            val novoTitulo = input.text.toString()
-
-            if (novoTitulo.isNotEmpty()) {
-                tarefa.titulo = novoTitulo // Atualiza o título da tarefa
-                atualizarTarefaNoBanco(tarefa) // Chama a função de atualização no banco
-                listarTarefas() // Atualiza a lista após a edição
-            }
-
-            dialog.dismiss()
-        }
-
-        builder.setNegativeButton("Cancelar") { dialog, _ ->
-            dialog.cancel()
-        }
-
-        builder.show()
-    }
-
-
     private fun atualizarTarefaNoBanco(tarefa: Tarefa) {
         val db = DatabaseHelper(requireContext()).writableDatabase
         val contentValues = ContentValues().apply {
@@ -156,5 +157,4 @@ class ListarTarefaFragment : Fragment() {
         db.update(DatabaseHelper.TABELA_TAREFAS, contentValues, "${DatabaseHelper.ID_TAREFA} = ?", arrayOf(tarefa.id.toString()))
         db.close()
     }
-
 }

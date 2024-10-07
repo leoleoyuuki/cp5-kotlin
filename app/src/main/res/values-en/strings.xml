@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">cp5-kotlin</string>
+    <string name="title_home">Register Task</string>
+    <string name="title_dashboard">List Tasks</string>
+    <string name="cadastrar_tarefa">Register Task</string>
+    <string name="titulo_hint">Title</string>
+    <string name="descricao_hint">Description</string>
+    <string name="data_hint">Date (dd/MM/yyyy)</string>
+    <string name="hora_hint">Time (HH:mm)</string>
+    <string name="local_hint">Location</string>
+    <string name="salvar">Save</string>
+    <string name="tarefa">Task</string>
+    <string name="editar">Edit</string>
+    <string name="deletar">Delete</string>
+    <string name="editar_tarefa">Edit Task</string>
+    <string name="titulo_vazio">The title cannot be empty</string>
+    <string name="cancelar">Cancel</string>
+</resources>

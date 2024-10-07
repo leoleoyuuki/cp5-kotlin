@@ -1,73 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-
-
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg">
+    >
 
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp"
-    android:layout_marginTop="150dp"
- >
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Cadastrar Tarefa"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:layout_gravity="center"
-        android:paddingBottom="16dp"/>
-
-    <EditText
-        android:id="@+id/editTitulo"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Título"
-        android:padding="10dp"/>
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:layout_marginTop="150dp"
+        >
 
-    <EditText
-        android:id="@+id/editDescricao"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Descrição"
-        android:padding="10dp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/cadastrar_tarefa"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_gravity="center"
+            android:paddingBottom="16dp"/>
 
-    <EditText
-        android:id="@+id/editData"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Data (dd/MM/yyyy)"
-        android:padding="10dp"/>
+        <EditText
+            android:id="@+id/editTitulo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/titulo_hint"
+            android:padding="10dp"/>
 
-    <EditText
-        android:id="@+id/editHora"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Hora (HH:mm)"
-        android:padding="10dp"/>
+        <EditText
+            android:id="@+id/editDescricao"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/descricao_hint"
+            android:padding="10dp"/>
 
-    <EditText
-        android:id="@+id/editLocal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Local"
-        android:padding="10dp"/>
+        <EditText
+            android:id="@+id/editData"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/data_hint"
+            android:padding="10dp"/>
 
-    <Button
-        android:id="@+id/btnSalvar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Salvar"
-        android:layout_marginTop="16dp"/>
+        <EditText
+            android:id="@+id/editHora"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/hora_hint"
+            android:padding="10dp"/>
 
-</LinearLayout>
+        <EditText
+            android:id="@+id/editLocal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/local_hint"
+            android:padding="10dp"/>
+
+        <Button
+            android:id="@+id/btnSalvar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/salvar"
+            android:layout_marginTop="16dp"/>
+
+    </LinearLayout>
 
 </LinearLayout>

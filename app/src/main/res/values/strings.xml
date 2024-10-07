@@ -2,4 +2,17 @@
     <string name="app_name">cp5-kotlin</string>
     <string name="title_home">Cadastrar Tarefa</string>
     <string name="title_dashboard">Listar Tarefas</string>
+    <string name="cadastrar_tarefa">Cadastrar Tarefa</string>
+    <string name="titulo_hint">Título</string>
+    <string name="descricao_hint">Descrição</string>
+    <string name="data_hint">Data (dd/MM/yyyy)</string>
+    <string name="hora_hint">Hora (HH:mm)</string>
+    <string name="local_hint">Local</string>
+    <string name="salvar">Salvar</string>
+    <string name="tarefa">Tarefa</string>
+    <string name="editar">Editar</string>
+    <string name="deletar">Deletar</string>
+    <string name="editar_tarefa">Editar Tarefa</string>
+    <string name="titulo_vazio">O título não pode ser vazio</string>
+    <string name="cancelar">Cancelar</string>
 </resources>

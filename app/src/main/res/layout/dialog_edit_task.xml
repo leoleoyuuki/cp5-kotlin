@@ -8,7 +8,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Editar Tarefa"
+        android:text="@string/editar_tarefa"
         android:textSize="18sp"
         android:textStyle="bold"
         android:layout_gravity="center_horizontal" />
@@ -17,14 +17,14 @@
         android:id="@+id/editTextTitulo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Título"
+        android:hint="@string/titulo_hint"
         android:inputType="text" />
 
     <Button
         android:id="@+id/btnSalvarEdicao"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Salvar"
+        android:text="@string/salvar"
         android:layout_gravity="center_horizontal"
         android:paddingTop="16dp" />
 </LinearLayout>
