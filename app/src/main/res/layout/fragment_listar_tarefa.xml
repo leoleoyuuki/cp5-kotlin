@@ -6,7 +6,6 @@
     android:background="@drawable/bg"
     android:padding="16dp">
 
-    <!-- Título centralizado no topo -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -17,16 +16,13 @@
         android:paddingTop="16dp"
         android:paddingBottom="16dp" />
 
-    <!-- ListView com espaço para centralizar o começo das tarefas -->
     <ListView
         android:id="@+id/listViewTarefas"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:layout_marginBottom="80dp"
-        android:layout_marginTop="80dp" /> <!-- Margem superior para centralizar o ListView -->
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginBottom="16dp" />
 
-    <!-- Botão na parte inferior, centralizado -->
     <Button
         android:id="@+id/btnAtualizar"
         android:layout_width="wrap_content"
@@ -34,5 +30,4 @@
         android:text="Atualizar Lista"
         android:layout_gravity="center_horizontal|bottom"
         android:layout_marginBottom="32dp" />
-
 </FrameLayout>

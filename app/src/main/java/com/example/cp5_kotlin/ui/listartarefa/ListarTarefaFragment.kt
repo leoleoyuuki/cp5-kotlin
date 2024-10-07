@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.ListView
@@ -12,13 +13,14 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.cp5_kotlin.R
 import com.example.cp5_kotlin.bancodedados.DatabaseHelper
+import com.example.cp5_kotlin.model.Tarefa
+
 class ListarTarefaFragment : Fragment() {
 
-    private lateinit var bancoDados: DatabaseHelper
-    private lateinit var listView: ListView
+    private lateinit var listViewTarefas: ListView
     private lateinit var btnAtualizar: Button
-
-    private val tarefas = mutableListOf<String>()
+    private lateinit var bancoDados: DatabaseHelper
+    private var listaTarefas = mutableListOf<Tarefa>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -26,66 +28,65 @@ class ListarTarefaFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_listar_tarefa, container, false)
 
-        bancoDados = DatabaseHelper(requireContext())
-        listView = view.findViewById(R.id.listViewTarefas)
+        listViewTarefas = view.findViewById(R.id.listViewTarefas)
         btnAtualizar = view.findViewById(R.id.btnAtualizar)
 
-        // Configurar o ListView
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, tarefas)
-        listView.adapter = adapter
+        bancoDados = DatabaseHelper(requireContext())
+        listarTarefas()
 
-        // Atualizar a lista de tarefas
-        atualizarLista()
-
-        // Ação do botão atualizar
         btnAtualizar.setOnClickListener {
-            atualizarLista()
-        }
-
-        listView.setOnItemClickListener { parent, view, position, id ->
-            // Aqui você pode implementar a lógica para editar a tarefa
-            val tarefa = tarefas[position]
-            Toast.makeText(requireContext(), "Editar: $tarefa", Toast.LENGTH_SHORT).show()
-        }
-
-        listView.setOnItemLongClickListener { parent, view, position, id ->
-            // Aqui você pode implementar a lógica para excluir a tarefa
-            val tarefa = tarefas[position]
-            excluirTarefa(tarefa)
-            true
+            listarTarefas()
         }
 
         return view
     }
 
-    private fun atualizarLista() {
-        tarefas.clear() // Limpa a lista antes de atualizar
-        try {
-            val cursor = bancoDados.readableDatabase.rawQuery("SELECT * FROM ${DatabaseHelper.TABELA_TAREFAS}", null)
-            val indiceTitulo = cursor.getColumnIndex(DatabaseHelper.TITULO)
+    private fun listarTarefas() {
+        listaTarefas.clear()
+        val cursor = bancoDados.readableDatabase.query(
+            DatabaseHelper.TABELA_TAREFAS,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        )
 
-            while (cursor.moveToNext()) {
-                val titulo = cursor.getString(indiceTitulo)
-                tarefas.add(titulo) // Adiciona o título à lista de tarefas
+        while (cursor.moveToNext()) {
+            val id = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.ID_TAREFA))
+            val titulo = cursor.getString(cursor.getColumnIndex(DatabaseHelper.TITULO))
+            val data = cursor.getString(cursor.getColumnIndex(DatabaseHelper.DATA_TAREFA))
+            val descricao = cursor.getString(cursor.getColumnIndex(DatabaseHelper.DESCRICAO))
+            val local = cursor.getString(cursor.getColumnIndex(DatabaseHelper.LOCAL_TAREFA))
+            val hora = cursor.getString(cursor.getColumnIndex(DatabaseHelper.HORA_TAREFA))
+
+            listaTarefas.add(Tarefa(id, titulo, data, descricao, local, hora))
+        }
+
+        cursor.close()
+
+        val adapter = ArrayAdapter(requireContext(), R.layout.item_tarefa, listaTarefas)
+        listViewTarefas.adapter = adapter
+
+        listViewTarefas.setOnItemClickListener { _, view, position, _ ->
+            // Exibe os botões de editar e deletar
+            val tarefa = listaTarefas[position]
+            view.findViewById<Button>(R.id.btnEditar).setOnClickListener {
+                // Implementar a lógica de edição aqui
+                Toast.makeText(requireContext(), "Editar: ${tarefa.titulo}", Toast.LENGTH_SHORT).show()
             }
-            cursor.close()
-            Log.i("db_info", "Lista atualizada com sucesso")
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Log.i("db_info", "Erro ao atualizar lista")
+
+            view.findViewById<Button>(R.id.btnDeletar).setOnClickListener {
+                // Implementar a lógica de deleção aqui
+                deletarTarefa(tarefa.id)
+            }
         }
     }
 
-    private fun excluirTarefa(titulo: String) {
-        try {
-            val sql = "DELETE FROM ${DatabaseHelper.TABELA_TAREFAS} WHERE ${DatabaseHelper.TITULO} = '$titulo'"
-            bancoDados.writableDatabase.execSQL(sql)
-            Log.i("db_info", "Tarefa excluída: $titulo")
-            atualizarLista() // Atualiza a lista após a exclusão
-            Toast.makeText(requireContext(), "Tarefa excluída: $titulo", Toast.LENGTH_SHORT).show()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Log.i("db_info", "Erro ao excluir a tarefa")
-        }
+    private fun deletarTarefa(id: Int) {
+        bancoDados.writableDatabase.delete(DatabaseHelper.TABELA_TAREFAS, "${DatabaseHelper.ID_TAREFA} = ?", arrayOf(id.toString()))
+        Toast.makeText(requireContext(), "Tarefa deletada", Toast.LENGTH_SHORT).show()
+        listarTarefas() // Atualiza a lista
     }
 }
